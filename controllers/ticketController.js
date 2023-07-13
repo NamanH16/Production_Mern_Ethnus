@@ -3,11 +3,7 @@ const asyncHandler = require("express-async-handler")
 const User = require("../models/userModel")
 const Ticket = require("../models/ticketModel")
 
-// @desc    Get user tickets
-// @route   GET /api/tickets
-// @access  Private
 const getTickets = asyncHandler(async (req, res) => {
-  // Get user using the id in the JWT
   const user = await User.findById(req.user.id)
 
   if (!user) {
@@ -15,7 +11,13 @@ const getTickets = asyncHandler(async (req, res) => {
     throw new Error("User not found")
   }
 
-  const tickets = await Ticket.find({ user: req.user.id })
+  let tickets;
+
+  if (user.email === "admin@gmail.com") {
+    tickets = await Ticket.find({});
+  } else {
+    tickets = await Ticket.find({ user: req.user.id });
+  }
 
   res.status(200).json(tickets)
 })
@@ -24,7 +26,6 @@ const getTickets = asyncHandler(async (req, res) => {
 // @route   GET /api/tickets/:id
 // @access  Private
 const getTicket = asyncHandler(async (req, res) => {
-  // Get user using the id in the JWT
   const user = await User.findById(req.user.id)
 
   if (!user) {
@@ -39,7 +40,7 @@ const getTicket = asyncHandler(async (req, res) => {
     throw new Error("Ticket not found")
   }
 
-  if (ticket.user.toString() !== req.user.id) {
+  if (ticket.user.toString() !== req.user.id && user.email !== "admin@gmail.com") {
     res.status(401)
     throw new Error("Not Authorized")
   }
@@ -95,7 +96,7 @@ const deleteTicket = asyncHandler(async (req, res) => {
     throw new Error("Ticket not found")
   }
 
-  if (ticket.user.toString() !== req.user.id) {
+  if (ticket.user.toString() !== req.user.id && user.email !== "admin@gmail.com") {
     res.status(401)
     throw new Error("Not Authorized")
   }
@@ -124,7 +125,7 @@ const updateTicket = asyncHandler(async (req, res) => {
     throw new Error("Ticket not found")
   }
 
-  if (ticket.user.toString() !== req.user.id) {
+  if (ticket.user.toString() !== req.user.id && user.email !== "admin@gmail.com") {
     res.status(401)
     throw new Error("Not Authorized")
   }
