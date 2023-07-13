@@ -4,11 +4,7 @@ const User = require("../models/userModel")
 const Note = require("../models/noteModel")
 const Ticket = require("../models/ticketModel")
 
-// @desc    Get notes for a ticket
-// @route   GET /api/tickets/:ticketId/notes
-// @access  Private
 const getNotes = asyncHandler(async (req, res) => {
-  // Get user using the id in the JWT
   const user = await User.findById(req.user.id)
 
   if (!user) {
@@ -18,7 +14,7 @@ const getNotes = asyncHandler(async (req, res) => {
 
   const ticket = await Ticket.findById(req.params.ticketId)
 
-  if (ticket.user.toString() !== req.user.id) {
+  if (ticket.user.toString() !== req.user.id && user.email !== "admin@gmail.com") {
     res.status(401)
     throw new Error("User not authorized")
   }
@@ -42,7 +38,7 @@ const addNote = asyncHandler(async (req, res) => {
 
   const ticket = await Ticket.findById(req.params.ticketId)
 
-  if (ticket.user.toString() !== req.user.id) {
+  if (ticket.user.toString() !== req.user.id && user.email !== "admin@gmail.com") {
     res.status(401)
     throw new Error("User not authorized")
   }
